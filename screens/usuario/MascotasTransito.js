@@ -1,69 +1,277 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  Image, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Animated,
+  Dimensions 
+} from "react-native";
 import Header from "../../components/Header";
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+
+const { width } = Dimensions.get('window');
 
 export default function MascotasTransito({ navigation }) {
   const [mascotas, setMascotas] = useState([]);
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
     fetch("http://192.168.18.24/mascotas-api/endpoints/mascotas/transito.php")
       .then(res => res.json())
-      .then(data => setMascotas(data))
+      .then(data => {
+        setMascotas(data);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }).start();
+      })
       .catch(err => console.error("❌ Error de red:", err));
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Image source={{ uri: `http://192.168.18.24/mascotas/${item.imagen}` }} style={styles.image} />
-      <Text style={styles.name}>{item.nombre}</Text>
-      <Text style={styles.age}>{item.edad}</Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate("DetalleMascota", { ...item, tipo_formulario: "transito" })}
+  const MascotaCard = ({ item, index }) => {
+    const [scaleAnim] = useState(new Animated.Value(0.9));
+
+    useEffect(() => {
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 600,
+        delay: index * 100,
+        useNativeDriver: true,
+      }).start();
+    }, []);
+
+    const handlePressIn = () => {
+      Animated.spring(scaleAnim, {
+        toValue: 0.95,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const handlePressOut = () => {
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    return (
+      <Animated.View
+        style={[
+          styles.cardContainer,
+          {
+            transform: [{ scale: scaleAnim }],
+            opacity: fadeAnim,
+          }
+        ]}
       >
-        <Text style={styles.buttonText}>Dar tránsito</Text>
-      </TouchableOpacity>
-    </View>
-  );
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate("DetalleMascota", { ...item, tipo_formulario: "transito" })}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          activeOpacity={1}
+        >
+          <View style={styles.imageContainer}>
+            <Image 
+              source={{ uri: `http://192.168.18.24/mascotas/${item.imagen}` }} 
+              style={styles.image} 
+            />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.7)']}
+              style={styles.imageOverlay}
+            >
+              <View style={styles.transitBadge}>
+                <Ionicons name="time" size={16} color="white" />
+                <Text style={styles.transitText}>Tránsito</Text>
+              </View>
+            </LinearGradient>
+          </View>
+          
+          <View style={styles.cardContent}>
+            <Text style={styles.name}>{item.nombre}</Text>
+            <View style={styles.infoRow}>
+              <Ionicons name="calendar" size={14} color="#666" />
+              <Text style={styles.age}>{item.edad}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="location" size={14} color="#666" />
+              <Text style={styles.location}>Saladillo, Buenos Aires</Text>
+            </View>
+            
+            <LinearGradient
+              colors={['#A8EDEA', '#FED6E3']}
+              style={styles.transitButton}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Ionicons name="home" size={16} color="#2c3e50" />
+              <Text style={styles.transitButtonText}>Dar Tránsito</Text>
+            </LinearGradient>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <Header />
-      <Text style={styles.title}>Mascotas en Tránsito</Text>
+      
+      <View style={styles.headerSection}>
+        <LinearGradient
+          colors={['#A8EDEA', '#FED6E3']}
+          style={styles.headerGradient}
+        >
+          <Ionicons name="home" size={32} color="white" />
+          <Text style={styles.title}>Mascotas en Tránsito</Text>
+          <Text style={styles.subtitle}>Hogar temporal mientras encuentran familia</Text>
+        </LinearGradient>
+      </View>
+
       <FlatList
         data={mascotas}
         keyExtractor={(item) => item.id_mascota.toString()}
-        renderItem={renderItem}
+        renderItem={({ item, index }) => <MascotaCard item={item} index={index} />}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 10, textAlign: "center" },
-  list: { paddingBottom: 20 },
-  card: {
-    marginBottom: 20,
-    alignItems: "center",
-    backgroundColor: "#fef6e4",
-    padding: 15,
-    borderRadius: 12,
+  container: { 
+    flex: 1, 
+    backgroundColor: "#f8f9fa" 
   },
-  image: { width: 200, height: 200, borderRadius: 10, marginBottom: 10 },
-  name: { fontSize: 18, fontWeight: "bold" },
-  age: { fontSize: 16, color: "gray" },
-  button: {
-    backgroundColor: '#eb5d37',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
+  headerSection: {
+    margin: 16,
     borderRadius: 20,
-    marginTop: 10,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  headerGradient: {
+    padding: 24,
+    alignItems: 'center',
+  },
+  title: { 
+    fontSize: 24, 
+    fontWeight: "800", 
+    color: 'white',
+    textAlign: "center",
+    marginTop: 8,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: 'white',
     textAlign: 'center',
+    marginTop: 4,
+    opacity: 0.9,
+  },
+  list: { 
+    padding: 16,
+  },
+  row: {
+    justifyContent: 'space-between',
+  },
+  cardContainer: {
+    width: (width - 48) / 2,
+    marginBottom: 16,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  imageContainer: {
+    position: 'relative',
+    height: 160,
+  },
+  image: { 
+    width: '100%', 
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    padding: 12,
+  },
+  transitBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(168, 237, 234, 0.9)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    gap: 4,
+  },
+  transitText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  cardContent: {
+    padding: 16,
+  },
+  name: { 
+    fontSize: 18, 
+    fontWeight: "700",
+    color: '#2c3e50',
+    marginBottom: 8,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+    gap: 6,
+  },
+  age: { 
+    fontSize: 14, 
+    color: "#666",
+    fontWeight: '500',
+  },
+  location: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  transitButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 12,
+    gap: 6,
+  },
+  transitButtonText: {
+    color: '#2c3e50',
+    fontWeight: '700',
+    fontSize: 14,
   },
 });
