@@ -182,7 +182,7 @@ const ChatUsuario = () => {
 
 export default ChatUsuario;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create(
   container: {
     flex: 1,
     backgroundColor: '#FFF8F3',
