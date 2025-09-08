@@ -177,7 +177,10 @@ const ChatUsuario = () => {
               </TouchableOpacity>
             </View>
           </View>
-  )
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 };
 
 export default ChatUsuario;
@@ -295,6 +298,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   }
 });
+
 
 
 
