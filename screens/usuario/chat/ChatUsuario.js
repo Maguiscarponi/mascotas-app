@@ -177,6 +177,7 @@ const ChatUsuario = () => {
               </TouchableOpacity>
             </View>
           </View>
+  )
 };
 
 export default ChatUsuario;

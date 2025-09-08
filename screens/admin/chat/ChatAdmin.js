@@ -317,7 +317,10 @@ const ChatAdmin = ({ route, navigation }) => {
             activeOpacity={0.8}
           >
             {enviando ? (
-};
+            )
+            };
+  )
+}
 
 export default ChatAdmin;
 
