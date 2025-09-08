@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { connectSocket, sendMessageSocket, subscribeToMessages } from '../../../utils/socket';
 import Mensaje from '../../../components/Mensaje';
 import ImagenChat from '../../../components/ImagenChat';
+import { Ionicons } from '@expo/vector-icons';
 
 const ChatUsuario = () => {
   const [mensajes, setMensajes] = useState([]);
@@ -121,122 +122,172 @@ const ChatUsuario = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <Ionicons name="chatbubbles" size={24} color="#FF6B35" />
+          <Text style={styles.headerTitle}>Chat de Soporte</Text>
+        </View>
+        <Text style={styles.headerSubtitle}>Reportá o consultá sobre mascotas</Text>
+      </View>
+      
       <KeyboardAvoidingView
-        style={styles.container}
+        style={styles.chatContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'android' ? 20 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.innerContainer}>
+          <View style={styles.chatInner}>
             <FlatList
               data={mensajes}
               renderItem={({ item }) => <Mensaje item={item} />}
               keyExtractor={(item, i) => i.toString()}
               ref={flatListRef}
-              contentContainerStyle={styles.chatContainer}
+              contentContainerStyle={styles.messagesList}
               keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
             />
 
             {imageLocalUri && (
               <View style={styles.previewContainer}>
                 <Image source={{ uri: imageLocalUri }} style={styles.previewImage} />
-                <TouchableOpacity onPress={() => setImageLocalUri(null)} style={styles.removePreview}>
-                  <Text style={styles.removePreviewText}>X</Text>
+                <TouchableOpacity onPress={() => setImageLocalUri(null)} style={styles.removeButton}>
+                  <Ionicons name="close" size={16} color="#FFF" />
                 </TouchableOpacity>
               </View>
             )}
 
             <View style={[styles.inputContainer, { paddingBottom: insets.bottom + 12 }]}>
-              <ImagenChat onImagenSeleccionada={setImageLocalUri} />
+              <TouchableOpacity style={styles.imageButton}>
+                <ImagenChat onImagenSeleccionada={setImageLocalUri} />
+              </TouchableOpacity>
               <TextInput
                 style={styles.input}
                 placeholder="Escribí tu mensaje..."
+                placeholderTextColor="#BDC3C7"
                 value={mensaje}
                 onChangeText={setMensaje}
                 returnKeyType="send"
                 onSubmitEditing={enviarMensaje}
+                multiline
+                maxLength={500}
               />
-              <TouchableOpacity style={styles.boton} onPress={enviarMensaje}>
-                <Text style={styles.botonTexto}>Enviar</Text>
+              <TouchableOpacity style={styles.sendButton} onPress={enviarMensaje} activeOpacity={0.8}>
+                <Ionicons name="send" size={20} color="#FFF" />
               </TouchableOpacity>
             </View>
           </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
 };
 
 export default ChatUsuario;
 
 const styles = StyleSheet.create({
-  // Estilos generales
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f0f0f0'
-  },
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#FFF8F3',
   },
-  innerContainer: {
-    flex: 1
+  header: {
+    backgroundColor: '#FFF',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    paddingTop: 60,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
-
-  // Contenedor del chat
-  chatContainer: {
-    flexGrow: 1,
-    padding: 10
-  },
-
-  // Vista previa de imagen adjunta
-  previewContainer: {
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 8,
-    marginHorizontal: 8,
-    marginBottom: 4,
-    borderRadius: 8
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginLeft: 10,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#7F8C8D',
+    textAlign: 'center',
+  },
+  chatContainer: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  chatInner: {
+    flex: 1
+  },
+  messagesList: {
+    flexGrow: 1,
+    padding: 20,
+  },
+  previewContainer: {
+    position: 'relative',
+    alignSelf: 'flex-end',
+    marginHorizontal: 20,
+    marginBottom: 10,
   },
   previewImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    marginRight: 8
+    width: 120,
+    height: 120,
+    borderRadius: 15,
   },
-  removePreview: {
+  removeButton: {
     position: 'absolute',
-    top: 4,
-    right: 4,
-    backgroundColor: '#ddd',
-    borderRadius: 10,
-    padding: 2
+    top: -8,
+    right: -8,
+    backgroundColor: '#E74C3C',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  removePreviewText: {
-    fontSize: 12,
-    color: '#333'
-  },
-
-  // Input de texto y botón de enviar
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    marginHorizontal: 8,
-    borderRadius: 8,
-    paddingHorizontal: 8
+    backgroundColor: '#FFF',
+    marginHorizontal: 20,
+    marginTop: 10,
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  imageButton: {
+    padding: 8,
   },
   input: {
     flex: 1,
-    height: 40
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    color: '#2C3E50',
+    maxHeight: 100,
   },
-  boton: {
-    backgroundColor: '#ee6c4d',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginLeft: 8
+  sendButton: {
+    backgroundColor: '#FF6B35',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   botonTexto: {
     color: '#fff',

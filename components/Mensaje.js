@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const Mensaje = ({ item, isAdmin = false }) => {
   // Lógica corregida para determinar si el mensaje es propio
@@ -28,7 +29,116 @@ const Mensaje = ({ item, isAdmin = false }) => {
   }
 
   return (
-    <View style={[styles.mensaje, esPropio ? styles.derecha : styles.izquierda]}>
+    <View style={[styles.messageContainer, esPropio ? styles.ownMessage : styles.otherMessage]}>
+      {!esPropio && (
+        <View style={styles.avatarContainer}>
+          <Ionicons name="person-circle" size={32} color="#7F8C8D" />
+        </View>
+      )}
+      
+      <View style={[styles.messageBubble, esPropio ? styles.ownBubble : styles.otherBubble]}>
+        {tieneImagen && (
+          <Image
+            source={{
+              uri: item.imagen_url.startsWith('http')
+                ? item.imagen_url
+                : `http://172.20.10.2/mascotas/${item.imagen_url}`
+            }}
+            style={styles.messageImage}
+            resizeMode="cover"
+            onError={(e) => console.log('Error cargando imagen:', item.imagen_url, e.nativeEvent.error)}
+          />
+        )}
+        {tieneMensaje && (
+          <Text style={[styles.messageText, esPropio ? styles.ownText : styles.otherText]}>
+            {item.mensaje}
+          </Text>
+        )}
+        <Text style={[styles.timeText, esPropio ? styles.ownTime : styles.otherTime]}>
+          {hora}
+        </Text>
+      </View>
+      
+      {esPropio && (
+        <View style={styles.avatarContainer}>
+          <Ionicons name="person-circle" size={32} color="#FF6B35" />
+        </View>
+      )}
+    </View>
+  );
+};
+
+export default Mensaje;
+
+const styles = StyleSheet.create({
+  messageContainer: {
+    flexDirection: 'row',
+    marginVertical: 4,
+    paddingHorizontal: 10,
+    alignItems: 'flex-end',
+  },
+  ownMessage: {
+    justifyContent: 'flex-end',
+  },
+  otherMessage: {
+    justifyContent: 'flex-start',
+  },
+  avatarContainer: {
+    marginHorizontal: 8,
+    marginBottom: 4,
+  },
+  messageBubble: {
+    maxWidth: '75%',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  ownBubble: {
+    backgroundColor: '#FF6B35',
+    borderBottomRightRadius: 5,
+  },
+  otherBubble: {
+    backgroundColor: '#FFF',
+    borderBottomLeftRadius: 5,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
+  },
+  messageText: {
+    fontSize: 16,
+    lineHeight: 20,
+  },
+  ownText: {
+    color: '#FFF',
+  },
+  otherText: {
+    color: '#2C3E50',
+  },
+  timeText: {
+    fontSize: 11,
+    marginTop: 6,
+    fontWeight: '500',
+  },
+  ownTime: {
+    color: 'rgba(255,255,255,0.8)',
+    textAlign: 'right',
+  },
+  otherTime: {
+    color: '#7F8C8D',
+    textAlign: 'left',
+  },
+  messageImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 15,
+    marginBottom: 8,
+  },
+});
+
       {tieneImagen && (
         <Image
           source={{

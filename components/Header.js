@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -27,33 +28,42 @@ const Header = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>Adoptame Saladillo</Text>
+      <View style={styles.logoContainer}>
+        <Ionicons name="heart" size={24} color="#FF6B35" />
+        <Text style={styles.logo}>AdoptaAR</Text>
+      </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navContainer}>
 
           {rol === "admin" && (
-          <TouchableOpacity onPress={() => navigation.navigate("DashboardAdmin")}>
-            <Text style={[styles.navLink, { fontWeight: 'bold', color: '#d44b2e' }]}>Panel administrativo</Text>
+          <TouchableOpacity style={styles.adminButton} onPress={() => navigation.navigate("DashboardAdmin")}>
+            <Ionicons name="settings" size={16} color="#FFF" />
+            <Text style={styles.adminButtonText}>Admin</Text>
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity onPress={() => navigation.navigate("Adopcion")}>
-          <Text style={styles.navLink}>Mascotas en Adopción</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Adopcion")}>
+          <Ionicons name="home" size={16} color="#FF6B35" />
+          <Text style={styles.navLink}>Adopción</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Transito")}>
-          <Text style={styles.navLink}>Mascotas en Tránsito</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Transito")}>
+          <Ionicons name="time" size={16} color="#FF6B35" />
+          <Text style={styles.navLink}>Tránsito</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Perdidas")}>
-          <Text style={styles.navLink}>Mascotas Perdidas</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Perdidas")}>
+          <Ionicons name="search" size={16} color="#FF6B35" />
+          <Text style={styles.navLink}>Perdidas</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("ChatUsuario")}>
-          <Text style={styles.navLink}>Reportar Mascota</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("ChatUsuario")}>
+          <Ionicons name="chatbubble" size={16} color="#FF6B35" />
+          <Text style={styles.navLink}>Reportar</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity onPress={() => navigation.navigate("Donaciones")}>
-          <Text style={styles.navLink}>Realizar Donación</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("Donaciones")}>
+          <Ionicons name="gift" size={16} color="#FF6B35" />
+          <Text style={styles.navLink}>Donar</Text>
         </TouchableOpacity>
 
       </ScrollView>
@@ -61,17 +71,21 @@ const Header = () => {
       <View style={styles.authContainer}>
         {!nombre ? (
           <>
-            <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate("Login")}>
-              <Text style={styles.authButtonText}>Iniciar Sesión</Text>
+            <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate("Login")}>
+              <Text style={styles.loginButtonText}>Ingresar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate("Registro")}>
-              <Text style={styles.authButtonText}>Registrarse</Text>
+            <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate("Registro")}>
+              <Text style={styles.registerButtonText}>Registro</Text>
             </TouchableOpacity>
           </>
         ) : (
           <>
-            <Text style={styles.welcome}>Bienvenido, {nombre}</Text>
+            <View style={styles.welcomeContainer}>
+              <Ionicons name="person-circle" size={20} color="#FF6B35" />
+              <Text style={styles.welcome}>Hola, {nombre}</Text>
+            </View>
             <TouchableOpacity style={styles.logoutButton} onPress={cerrarSesion}>
+              <Ionicons name="log-out" size={16} color="#FFF" />
               <Text style={styles.logoutText}>Cerrar Sesión</Text>
             </TouchableOpacity>
           </>
@@ -83,62 +97,147 @@ const Header = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFEFE2',
-    paddingTop: 50,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
+    backgroundColor: '#FFF8F3',
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     flexDirection: 'column',
     alignItems: 'center',
-    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
   },
   logo: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#222',
-    marginBottom: 10,
+    color: '#2C3E50',
+    marginLeft: 8,
   },
   navContainer: {
     flexDirection: 'row',
-    gap: 20,
+    gap: 12,
     alignItems: 'center',
-    flexWrap: 'wrap',
+    paddingHorizontal: 10,
   },
-  navLink: {
-    fontSize: 14,
-    color: '#333',
-    marginHorizontal: 8,
-  },
-  authContainer: {
-    marginTop: 15,
+  navButton: {
     flexDirection: 'row',
-    gap: 10,
     alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  authButton: {
-    borderColor: '#eb5d37',
-    borderWidth: 1,
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-  },
-  authButtonText: {
-    color: '#eb5d37',
-    fontWeight: 'bold',
-  },
-  logoutButton: {
-    backgroundColor: '#E56342',
-    paddingVertical: 6,
+    backgroundColor: '#FFF',
+    paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  navLink: {
+    fontSize: 12,
+    color: '#2C3E50',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  adminButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF6B35',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  adminButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  authContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'center',
+  },
+  loginButton: {
+    backgroundColor: '#FFF',
+    borderColor: '#FF6B35',
+    borderWidth: 2,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  loginButtonText: {
+    color: '#FF6B35',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  registerButton: {
+    backgroundColor: '#FF6B35',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  registerButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E74C3C',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    shadowColor: '#E74C3C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   logoutText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  welcomeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   welcome: {
     fontWeight: 'bold',
-    marginRight: 10,
+    color: '#2C3E50',
+    fontSize: 14,
+    marginLeft: 6,
   },
 });
 

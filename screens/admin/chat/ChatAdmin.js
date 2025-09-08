@@ -249,160 +249,210 @@ const ChatAdmin = ({ route, navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#FF6B35" />
         </TouchableOpacity>
-        <Text style={styles.title}>{nombre || email}</Text>
-        <View style={{ width: 60 }} />
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>{nombre || email}</Text>
+          <Text style={styles.headerSubtitle}>Chat de soporte</Text>
+        </View>
+        <View style={styles.statusIndicator}>
+          <View style={styles.onlineStatus} />
+        </View>
       </View>
 
-      {/* Lista de chat */}
       {cargando ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0084ff" />
+          <ActivityIndicator size="large" color="#FF6B35" />
+          <Text style={styles.loadingText}>Cargando mensajes...</Text>
         </View>
       ) : (
         <FlatList
           data={mensajes}
           keyExtractor={(_, i) => i.toString()}
           ref={flatRef}
-          contentContainerStyle={styles.chatContainer}
+          contentContainerStyle={styles.messagesList}
           onContentSizeChange={scrollToEnd}
+          showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
-            // Pasar isAdmin=true para que el componente Mensaje maneje correctamente la lógica
             return <Mensaje item={item} isAdmin={true} />;
           }}
         />
       )}
 
-      {/* Input Area */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'android' ? 20 : 0}
       >
-        {/* Vista previa de imagen */}
         {imgUri && (
           <View style={styles.previewContainer}>
             <Image source={{ uri: imgUri }} style={styles.previewImage} />
-            <TouchableOpacity onPress={() => setImgUri(null)} style={styles.removePreview}>
-              <Text style={styles.removePreviewText}>X</Text>
+            <TouchableOpacity onPress={() => setImgUri(null)} style={styles.removeButton}>
+              <Ionicons name="close" size={16} color="#FFF" />
             </TouchableOpacity>
           </View>
         )}
 
         <View style={[styles.inputContainer, { paddingBottom: insets.bottom + 12 }]}>
-          <ImagenChat onImagenSeleccionada={handleImagenSeleccionada} />
+          <TouchableOpacity style={styles.imageButton}>
+            <ImagenChat onImagenSeleccionada={handleImagenSeleccionada} />
+          </TouchableOpacity>
           <TextInput
             style={styles.input}
             placeholder="Escribí tu mensaje..."
+            placeholderTextColor="#BDC3C7"
             value={texto}
             onChangeText={setTexto}
             returnKeyType="send"
             onSubmitEditing={enviar}
+            multiline
+            maxLength={500}
           />
           <TouchableOpacity 
-            style={[styles.boton, enviando && styles.botonDisabled]} 
+            style={[styles.sendButton, enviando && styles.sendButtonDisabled]} 
             onPress={enviar}
             disabled={enviando}
+            activeOpacity={0.8}
           >
-            <Text style={styles.botonTexto}>{enviando ? '...' : 'Enviar'}</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
+            {enviando ? (
 };
 
 export default ChatAdmin;
 
 const styles = StyleSheet.create({
-  // Igual fondo que ChatUsuario
-  safeArea: { 
+  container: { 
     flex: 1, 
-    backgroundColor: '#f0f0f0' 
+    backgroundColor: '#FFF8F3' 
   },
-
-  // Mantener el header pero con estilo neutro que no desentone
   header: {
-    height: 56,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#FFF',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd'
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    paddingTop: 60,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  back: { 
-    color: '#ee6c4d', 
-    fontSize: 16 
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFF8F3',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  title: { 
-    color: '#333', 
-    fontSize: 18, 
-    fontWeight: '600' 
+  headerContent: {
+    flex: 1,
+    marginLeft: 15,
   },
-
-  // Igual que en ChatUsuario: padding y flexGrow para que el FlatList crezca
-  chatContainer: { 
-    padding: 10, 
-    flexGrow: 1 
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2C3E50',
   },
-
-  // Vista previa de imagen idéntica
-  previewContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 8, 
-    backgroundColor: '#fff', 
-    marginHorizontal: 8, 
-    borderRadius: 8, 
-    marginBottom: 4 
+  headerSubtitle: {
+    fontSize: 12,
+    color: '#7F8C8D',
+    marginTop: 2,
   },
-  previewImage: { 
-    width: 80, 
-    height: 80, 
-    borderRadius: 8, 
-    marginRight: 8 
+  statusIndicator: {
+    alignItems: 'center',
   },
-  removePreview: { 
-    position: 'absolute', 
-    top: 4, 
-    right: 4, 
-    backgroundColor: '#ddd', 
-    borderRadius: 10, 
-    padding: 2 
+  onlineStatus: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#27AE60',
   },
-  removePreviewText: { 
-    fontSize: 12, 
-    color: '#333' 
+  messagesList: { 
+    flexGrow: 1,
+    padding: 20,
   },
-
-  // Input area igual que ChatUsuario
-  inputContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: '#fff', 
-    marginHorizontal: 8, 
-    borderRadius: 8, 
-    paddingHorizontal: 8 
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
   },
-  input: { 
-    flex: 1, 
-    height: 40 
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#7F8C8D',
   },
-  boton: { 
-    backgroundColor: '#ee6c4d', 
-    borderRadius: 20, 
-    paddingHorizontal: 12, 
-    paddingVertical: 8, 
-    marginLeft: 8 
+  previewContainer: {
+    position: 'relative',
+    alignSelf: 'flex-end',
+    marginHorizontal: 20,
+    marginBottom: 10,
   },
-  botonTexto: { 
-    color: '#fff', 
-    fontWeight: 'bold' 
+  previewImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 15,
+  },
+  removeButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#E74C3C',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    marginHorizontal: 20,
+    marginTop: 10,
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  imageButton: {
+    padding: 8,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    color: '#2C3E50',
+    maxHeight: 100,
+  },
+  sendButton: {
+    backgroundColor: '#FF6B35',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sendButtonDisabled: {
+    backgroundColor: '#BDC3C7',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   botonDisabled: { 
     backgroundColor: '#ccc' 
